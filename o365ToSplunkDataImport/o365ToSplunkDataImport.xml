@@ -2,7 +2,7 @@
   <header>o365ToSplunkDataImport</header>
   <breadcrumb>
     <parent hidecurrent="False">datainputstats</parent>
-    <name>Office 365 to Splunk data import</name>
+    <name>Office 365 data import</name>
   </breadcrumb>
   <elements>
     <element name="sourceFields" type="fieldset">

@@ -24,7 +24,7 @@ namespace Microsoft.Splunk.O365Reporting
             {
                 return new Scheme
                 {
-                    Title = "Office 365 to Splunk data import",
+                    Title = "Office 365 data import",
                     Description = "Get reporting data from your Office 365 for business subscription",
                     StreamingMode = StreamingMode.Xml,
                     Endpoint =

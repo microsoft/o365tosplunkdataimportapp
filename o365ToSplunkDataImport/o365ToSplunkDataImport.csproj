@@ -85,6 +85,12 @@
     <Content Include="app.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="appIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="README">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="third party notices.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -123,11 +129,13 @@ xcopy "$(TargetDir)default.meta" "C:\Program Files\Splunk\etc\apps\$(TargetName)
 xcopy "$(TargetDir)inputs.conf.spec" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
 xcopy "$(SolutionDir)LICENSE" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
 xcopy "$(TargetDir)third party notices.txt" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
-xcopy "$(TargetDir)app.conf" "C:\Program Files\Splunk\etc\apps\$(TargetName)\local\" /F /R /Y /I
+xcopy "$(TargetDir)README" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
+xcopy "$(TargetDir)app.conf" "C:\Program Files\Splunk\etc\apps\$(TargetName)\default\" /F /R /Y /I
 xcopy "$(TargetDir)Newtonsoft.*.dll" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
 xcopy "$(TargetDir)SplunkSDK.dll" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
 xcopy "$(TargetDir)Microsoft.Office365.ReportingWebServiceClient.dll" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
 xcopy "$(TargetPath)" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
+xcopy "$(TargetDir)appIcon.png" "C:\Program Files\Splunk\etc\apps\$(TargetName)\appserver\static\" /F /R /Y /I
 )</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
