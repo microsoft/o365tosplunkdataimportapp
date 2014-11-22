@@ -16,7 +16,7 @@ Note: Currently tested with Splunk Enterprise 6.0
 
 Note: Office 365 reporting web service client library is also an open source project: [https://github.com/Microsoft/o365rwsclient](https://github.com/Microsoft/o365rwsclient)
 
-## Know limitations
+## Known limitations
 
 * Currently, the 'StreamEvents' method will be called once when Splunk run the executable, which means that it does not yet continuously pull data from Office 365 reporting web service. Some extra logic should be implemented to hanlde this.
 * We have not yet created all the report proxy classes, which means that you may not be able to fetch data from some of your tenant's subscription.
@@ -31,7 +31,13 @@ So we assume you are building the project on the machine that has Splunk Enterpr
 
 ## Installation of the packaged app from Splunk marketplace
 
-Coming...
+* Using your browser, navigate to your Splunk Enterprise web user interface, for example: http://yoursplunkserver:8000/ and login
+* Go to Apps > Manage Apps
+* Click on "Find more apps online"
+* Using the search box, search for "Office 365"
+* Click on "Install free"
+* You may be asked to login with your Splunk.com credentials
+* Finally, you will see the confirmation that the app was successfully installed in Splunk
 
 ## Feedback
 
