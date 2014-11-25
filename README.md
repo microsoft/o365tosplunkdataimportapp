@@ -7,7 +7,7 @@ The Office 365 data Splunk app enables data analysts and IT administrators to im
 * [Splunk 6.x Enterprise](http://www.splunk.com/)
 * Windows 7 and later, and Windows Server 2008 and later
 
-Note: Currently tested with Splunk Enterprise 6.0
+Note: Tested with Splunk Enterprise 6.0, 6.1 and 6.2
 
 ## Dependencies
 
@@ -28,16 +28,6 @@ For simplicity and debugging reasons we decided to leverage Visual Studio post-b
 ![PostBuildEvent](/doc/PostBuildEventCommandLine.png?raw=true)
 
 So we assume you are building the project on the machine that has Splunk Enterprise installed. If not you should modify the post-build event.
-
-## Installation of the packaged app from Splunk marketplace
-
-* Using your browser, navigate to your Splunk Enterprise web user interface, for example: http://yoursplunkserver:8000/ and login
-* Go to Apps > Manage Apps
-* Click on "Find more apps online"
-* Using the search box, search for "Office 365"
-* Click on "Install free"
-* You may be asked to login with your Splunk.com credentials
-* Finally, you will see the confirmation that the app was successfully installed in Splunk
 
 ## Feedback
 
