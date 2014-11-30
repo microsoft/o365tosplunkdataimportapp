@@ -5,14 +5,20 @@ namespace Microsoft.Splunk.O365Reporting
 {
     public class SplunkTraceLogger : ITraceLogger
     {
+        private EventWriter writer;
+
+        public SplunkTraceLogger(EventWriter eventWriter)
+        {
+            this.writer = eventWriter;
+        }
         public void LogInformation(string message)
         {
-            SystemLogger.Write(message);
+            writer.LogAsync("INFO", message).Wait();
         }
 
         public void LogError(string message)
         {
-            SystemLogger.Write(message);
+            writer.LogAsync("ERROR", message).Wait();
         }
     }
 }

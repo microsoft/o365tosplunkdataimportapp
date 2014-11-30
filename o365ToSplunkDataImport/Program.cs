@@ -1,11 +1,12 @@
-﻿using Microsoft.Office365.ReportingWebServiceClient;
-using Splunk.ModularInputs;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Office365.ReportingWebServiceClient;
+using Splunk.ModularInputs;
 
 namespace Microsoft.Splunk.O365Reporting
 {
-    internal class Program : Script
+    public class Program : ModularInput
     {
         private const string ConstantReportName = "reportName";
         private const string ConstantEmailAddress = "email";
@@ -76,34 +77,81 @@ namespace Microsoft.Splunk.O365Reporting
             }
         }
 
-        public override void StreamEvents(InputDefinition inputDefinition)
+ 
+        public override bool Validate(Validation validation, out string errorMessage)
+        {
+            try
+            {
+                #region Get stanza values
+
+                string streamName = validation.Name;
+
+                string reportName = validation.Parameters[ConstantReportName].ToString();
+                string emailAddress = validation.Parameters[ConstantEmailAddress].ToString();
+                string password = validation.Parameters[ConstantReportName].ToString();
+                string startDateTemp = validation.Parameters[ConstantStartDate].ToString();
+                DateTime startDate = TryParseDateTime(startDateTemp, DateTime.MinValue);
+                string endDateTemp = validation.Parameters[ConstantEndDate].ToString();
+                DateTime endDate = TryParseDateTime(endDateTemp, DateTime.MaxValue);
+
+                #endregion Get stanza values
+            
+                if (startDate > endDate)
+                {
+                    errorMessage = "startDate must be less than or equal to endDate";
+                    return false;
+                }
+
+                ReportingContext context = new ReportingContext("https://reports.office365.com/ecp/reportingwebservice/reporting.svc");
+                context.UserName = emailAddress;
+                context.Password = password;
+                context.FromDateTime = startDate;
+                context.ToDateTime = endDate;
+
+                IReportVisitor visitor = new DummyVisitor();
+
+                ReportingStream stream = new ReportingStream(context, reportName, streamName);
+            
+                stream.RetrieveData(visitor);
+            }
+            catch(Exception e)
+            {
+                errorMessage = e.Message;
+                return false;
+            }
+
+            errorMessage = "";
+            return true;
+        }
+
+
+        public override async Task StreamEventsAsync(InputDefinition inputDefinition, EventWriter eventWriter)
         {
             #region Get stanza values
 
-            Stanza stanza = inputDefinition.Stanza;
-            SystemLogger.Write(string.Format("Name of Stanza is : {0}", stanza.Name));
+            await eventWriter.LogAsync("INFO", string.Format("Name of Stanza is : {0}", inputDefinition.Name));
 
-            string reportName = GetConfigurationValue(stanza, ConstantReportName);
-            string emailAddress = GetConfigurationValue(stanza, ConstantEmailAddress);
-            string password = GetConfigurationValue(stanza, ConstantPassword);
+            string reportName = await GetConfigurationValue(inputDefinition, ConstantReportName, eventWriter);
+            string emailAddress = await GetConfigurationValue(inputDefinition, ConstantEmailAddress, eventWriter);
+            string password = await GetConfigurationValue(inputDefinition, ConstantPassword, eventWriter);
 
-            SystemLogger.Write(GetConfigurationValue(stanza, ConstantStartDate));
+            await eventWriter.LogAsync("INFO", await GetConfigurationValue(inputDefinition, ConstantStartDate, eventWriter));
 
-            DateTime startDate = TryParseDateTime(GetConfigurationValue(stanza, ConstantStartDate), DateTime.MinValue);
-            DateTime endDate = TryParseDateTime(GetConfigurationValue(stanza, ConstantEndDate), DateTime.MinValue);
+            DateTime startDate = TryParseDateTime(await GetConfigurationValue(inputDefinition, ConstantStartDate, eventWriter), DateTime.MinValue);
+            DateTime endDate = TryParseDateTime(await GetConfigurationValue(inputDefinition, ConstantEndDate, eventWriter), DateTime.MinValue);
 
             #endregion Get stanza values
 
-            string streamName = stanza.Name;
+            string streamName = inputDefinition.Name;
 
             ReportingContext context = new ReportingContext("https://reports.office365.com/ecp/reportingwebservice/reporting.svc");
-            context.UserName = GetConfigurationValue(stanza, ConstantEmailAddress);
-            context.Password = GetConfigurationValue(stanza, ConstantPassword);
-            context.FromDateTime = TryParseDateTime(GetConfigurationValue(stanza, ConstantStartDate), DateTime.MinValue);
-            context.ToDateTime = TryParseDateTime(GetConfigurationValue(stanza, ConstantEndDate), DateTime.MinValue);
-            context.SetLogger(new SplunkTraceLogger());
+            context.UserName = emailAddress;
+            context.Password = password;
+            context.FromDateTime = startDate;
+            context.ToDateTime = endDate;
+            context.SetLogger(new SplunkTraceLogger(eventWriter));
 
-            IReportVisitor visitor = new SplunkReportVisitor(streamName);
+            IReportVisitor visitor = new SplunkReportVisitor(streamName, eventWriter);
 
             ReportingStream stream = new ReportingStream(context, reportName, streamName);
             stream.RetrieveData(visitor);
@@ -111,61 +159,21 @@ namespace Microsoft.Splunk.O365Reporting
 
         #region Private Methods
 
-        private string GetConfigurationValue(Stanza stanza, string keyName)
+        private async Task<string> GetConfigurationValue(InputDefinition definition, string keyName, EventWriter writer)
         {
-            string value;
-            if (stanza.SingleValueParameters.TryGetValue(
-                keyName,
-                out value))
+            Parameter parameter;
+            if (definition.Parameters.TryGetValue("keyName", out parameter))
             {
-                SystemLogger.Write(string.Format("Value for [{0}] retrieved successfully.", keyName));
-                return value;
+                await writer.LogAsync("INFO", string.Format("Value for [{0}] retrieved successfully.", keyName));
+                return parameter.ToString();
             }
-
-            SystemLogger.Write(string.Format("Value for [{0}] retrieved failed. Return empty string.", keyName));
-            return string.Empty;
+            throw new ArgumentException(string.Format("Value for [{0}] retriev failed. Return empty string.", keyName));
         }
 
-        private static Guid TryParseGuid(string value, Guid defaultValue)
-        {
-            Guid result;
-            if (Guid.TryParse(value, out result))
-            {
-                return result;
-            }
-
-            return defaultValue;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
         private static DateTime TryParseDateTime(string value, DateTime defaultValue)
         {
             DateTime result;
             if (DateTime.TryParse(value, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return defaultValue;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        private static int TryParseInt(string value, int defaultValue)
-        {
-            int result;
-            if (int.TryParse(value, out result))
             {
                 return result;
             }

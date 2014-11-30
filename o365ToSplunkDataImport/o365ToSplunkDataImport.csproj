@@ -1,38 +1,68 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="ZipFolder" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <FolderToCompress ParameterType="System.String" Required="true" />
+      <OutputFileName ParameterType="System.String" Required="true" />
+      <OverwriteExistingFile ParameterType="System.Boolean" Required="false" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.IO.Compression" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs"><![CDATA[        
+            const int BufferSize = 64 * 1024;
+
+            var buffer = new byte[BufferSize];
+            var fileMode = OverwriteExistingFile ? FileMode.Create : FileMode.CreateNew;
+
+            Action<string, ZipArchive> addPathToZip = null;
+            addPathToZip = new Action<string, ZipArchive>((string path, ZipArchive zip) =>
+            {
+                 if ((File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory)
+                 {
+                     foreach (string p in Directory.GetFileSystemEntries(path))
+                     {
+                         addPathToZip(p, zip);
+                     }
+                 }
+                 else // It's not a directory
+                 {
+                     var archivePath = path.Substring(FolderToCompress.TrimEnd('\\', '/').Count() + 1);
+                     var archiveEntry = zip.CreateEntry(archivePath);
+                     using (var fs = new FileStream(path, FileMode.Open))
+                     using (var zipStream = archiveEntry.Open())
+                     {
+                         int bytesRead = -1;
+                         while ((bytesRead = fs.Read(buffer, 0, BufferSize)) > 0)
+                         {
+                             zipStream.Write(buffer, 0, bytesRead);
+                         }
+                     }
+                 };
+             });
+
+            using (var outputFileStream = new FileStream(OutputFileName, fileMode))
+            using (var archive = new ZipArchive(outputFileStream, ZipArchiveMode.Create))
+            {
+                addPathToZip(FolderToCompress, archive);
+            }    
+      ]]></Code>
+    </Task>
+  </UsingTask>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{486B56B9-6A0B-4620-9482-972DC1EF41EC}</ProjectGuid>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{79FF6EAB-3A9D-4572-A27D-D995780160DE}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Splunk.O365Reporting</RootNamespace>
+    <RootNamespace>o365ToSplunkDataImport</RootNamespace>
     <AssemblyName>o365ToSplunkDataImport</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -42,7 +72,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -50,22 +79,21 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <AppSkeletonPath>$(OutputPath)\app\</AppSkeletonPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Office365.ReportingWebServiceClient">
-      <HintPath>..\packages\Microsoft.Office365.ReportingWebServiceClient.1.0.1.1\lib\Microsoft.Office365.ReportingWebServiceClient.dll</HintPath>
+      <HintPath>packages\Microsoft.Office365.ReportingWebServiceClient.1.0.1.1\lib\Microsoft.Office365.ReportingWebServiceClient.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Splunk.Client">
+      <HintPath>packages\Splunk.Client.2.0.0\lib\portable-net45+win+wpa81\Splunk.Client.dll</HintPath>
     </Reference>
-    <Reference Include="SplunkSDK">
-      <HintPath>..\packages\SplunkSDK.1.0.2\lib\net35\SplunkSDK.dll</HintPath>
+    <Reference Include="Splunk.ModularInputs">
+      <HintPath>packages\Splunk.ModularInputs.2.0.0\lib\net45\Splunk.ModularInputs.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,76 +101,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="SplunkReportVisitor.cs" />
     <Compile Include="SplunkTraceLogger.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="o365ToSplunkDataImport.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="app.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appIcon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="README">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="third party notices.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="App.config" />
-    <Content Include="inputs.conf.spec">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="default.meta">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Compile Include="DummyVisitor.cs" />
+    <None Include="o365ToSplunkDataImport\**\*.*" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if "Release" == "$(ConfigurationName)" (
-xcopy "$(TargetDir)o365ToSplunkDataImport.xml" "C:\Program Files\Splunk\etc\apps\$(TargetName)\default\data\ui\manager\" /F /R /Y /I
-xcopy "$(TargetDir)default.meta" "C:\Program Files\Splunk\etc\apps\$(TargetName)\metadata\" /F /R /Y /I
-xcopy "$(TargetDir)inputs.conf.spec" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
-xcopy "$(SolutionDir)LICENSE" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
-xcopy "$(TargetDir)third party notices.txt" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
-xcopy "$(TargetDir)README" "C:\Program Files\Splunk\etc\apps\$(TargetName)\README\" /F /R /Y /I
-xcopy "$(TargetDir)app.conf" "C:\Program Files\Splunk\etc\apps\$(TargetName)\default\" /F /R /Y /I
-xcopy "$(TargetDir)Newtonsoft.*.dll" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
-xcopy "$(TargetDir)SplunkSDK.dll" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
-xcopy "$(TargetDir)Microsoft.Office365.ReportingWebServiceClient.dll" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
-xcopy "$(TargetPath)" "C:\Program Files\Splunk\etc\apps\$(TargetName)\bin\" /F /R /Y /I
-xcopy "$(TargetDir)appIcon.png" "C:\Program Files\Splunk\etc\apps\$(TargetName)\appserver\static\" /F /R /Y /I
-)</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
-  </Target>
+  </Target> -->
   <Target Name="AfterBuild">
+    <!-- At this point, we have a directory AppSkeleton in the project directory that
+         contains app.conf and inputs.conf.spec. -->
+    <MakeDir Directories="$(AppSkeletonPath);$(AppSkeletonPath)\o365ToSplunkDataImport" />
+    <MakeDir Directories="$(AppSkeletonPath)\o365ToSplunkDataImport\bin;$(AppSkeletonPath)\o365ToSplunkDataImport\default;$(AppSkeletonPath)\o365ToSplunkDataImport\README" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\default\app.conf" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\default" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\README\inputs.conf.spec" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\README" />
+    <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
+    <ItemGroup>
+      <DLLsToInclude Include="$(OutputPath)\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
+    <ZipFolder FolderToCompress="$(AppSkeletonPath)" OutputFileName="$(OutputPath)\o365ToSplunkDataImport.spl" OverwriteExistingFile="true" />
+    <Message Importance="high" Text="Finished building .spl file in $(OutputPath)o365ToSplunkDataImport.spl" />
   </Target>
-  -->
 </Project>
