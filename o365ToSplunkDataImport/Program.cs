@@ -126,13 +126,13 @@ namespace Microsoft.Splunk.O365Reporting
         {
             #region Get stanza values
 
-            await eventWriter.LogAsync("INFO", string.Format("Name of Stanza is : {0}", inputDefinition.Name));
+            await eventWriter.LogAsync(Severity.Info, string.Format("Name of Stanza is : {0}", inputDefinition.Name));
 
             string reportName = await GetConfigurationValue(inputDefinition, ConstantReportName, eventWriter);
             string emailAddress = await GetConfigurationValue(inputDefinition, ConstantEmailAddress, eventWriter);
             string password = await GetConfigurationValue(inputDefinition, ConstantPassword, eventWriter);
 
-            await eventWriter.LogAsync("INFO", await GetConfigurationValue(inputDefinition, ConstantStartDate, eventWriter));
+            await eventWriter.LogAsync(Severity.Info, await GetConfigurationValue(inputDefinition, ConstantStartDate, eventWriter));
 
             DateTime startDate = TryParseDateTime(await GetConfigurationValue(inputDefinition, ConstantStartDate, eventWriter), DateTime.MinValue);
             DateTime endDate = TryParseDateTime(await GetConfigurationValue(inputDefinition, ConstantEndDate, eventWriter), DateTime.MinValue);
@@ -161,10 +161,10 @@ namespace Microsoft.Splunk.O365Reporting
             Parameter parameter;
             if (definition.Parameters.TryGetValue("keyName", out parameter))
             {
-                await writer.LogAsync("INFO", string.Format("Value for [{0}] retrieved successfully.", keyName));
+                await writer.LogAsync(Severity.Info, string.Format("Value for [{0}] retrieved successfully.", keyName));
                 return parameter.ToString();
             }
-            throw new ArgumentException(string.Format("Value for [{0}] retriev failed. Return empty string.", keyName));
+            throw new ArgumentException(string.Format("Value for [{0}] retrieve failed. Return empty string.", keyName));
         }
 
         private static DateTime TryParseDateTime(string value, DateTime defaultValue)

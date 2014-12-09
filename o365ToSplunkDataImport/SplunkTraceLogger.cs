@@ -13,12 +13,12 @@ namespace Microsoft.Splunk.O365Reporting
         }
         public void LogInformation(string message)
         {
-            writer.LogAsync("INFO", message).Wait();
+            writer.LogAsync(Severity.Info, message).Wait();
         }
 
         public void LogError(string message)
         {
-            writer.LogAsync("ERROR", message).Wait();
+            writer.LogAsync(Severity.Info, message).Wait();
         }
     }
 }

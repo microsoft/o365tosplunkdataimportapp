@@ -28,7 +28,7 @@ namespace Microsoft.Splunk.O365Reporting
         /// </summary>
         public override void VisitBatchReport()
         {
-            writer.LogAsync("INFO", string.Format("VisitBatchReport: {0}", this.reportObjectList.Count)).Wait();
+            writer.LogAsync(Severity.Info, string.Format("VisitBatchReport: {0}", this.reportObjectList.Count)).Wait();
 
             foreach (ReportObject report in reportObjectList)
             {
