@@ -108,11 +108,8 @@ namespace Microsoft.Splunk.O365Reporting
                 context.FromDateTime = startDate;
                 context.ToDateTime = endDate;
 
-                IReportVisitor visitor = new DummyVisitor();
-
                 ReportingStream stream = new ReportingStream(context, reportName, streamName);
-            
-                stream.RetrieveData(visitor);
+                stream.ValidateAccessToReport();
             }
             catch(Exception e)
             {

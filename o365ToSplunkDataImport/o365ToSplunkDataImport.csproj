@@ -82,15 +82,21 @@
   <PropertyGroup>
     <AppSkeletonPath>$(OutputPath)\app\</AppSkeletonPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Office365.ReportingWebServiceClient">
-      <HintPath>packages\Microsoft.Office365.ReportingWebServiceClient.1.0.1.1\lib\Microsoft.Office365.ReportingWebServiceClient.dll</HintPath>
+    <Reference Include="Microsoft.Office365.ReportingWebServiceClient, Version=1.0.2.42457, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Office365.ReportingWebServiceClient.1.0.2.0\lib\Microsoft.Office365.ReportingWebServiceClient.dll</HintPath>
     </Reference>
-    <Reference Include="Splunk.Client">
-      <HintPath>packages\Splunk.Client.2.0.0\lib\portable-net45+win+wpa81\Splunk.Client.dll</HintPath>
+    <Reference Include="Splunk.Client, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Splunk.Client.2.1.0\lib\portable-net45+win+wpa81\Splunk.Client.dll</HintPath>
     </Reference>
-    <Reference Include="Splunk.ModularInputs">
-      <HintPath>packages\Splunk.ModularInputs.2.0.0\lib\net45\Splunk.ModularInputs.dll</HintPath>
+    <Reference Include="Splunk.ModularInputs, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Splunk.ModularInputs.2.1.0\lib\net45\Splunk.ModularInputs.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -105,9 +111,24 @@
     <Compile Include="Program.cs" />
     <Compile Include="SplunkReportVisitor.cs" />
     <Compile Include="SplunkTraceLogger.cs" />
-    <Compile Include="DummyVisitor.cs" />
-    <None Include="o365ToSplunkDataImport\**\*.*" />
+    <None Include="o365ToSplunkDataImport\default\app.conf" />
+    <None Include="o365ToSplunkDataImport\default\data\ui\manager\o365ToSplunkDataImport.xml" />
+    <None Include="o365ToSplunkDataImport\README\inputs.conf.spec" />
+    <None Include="o365ToSplunkDataImport\README\third party notices.txt" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="o365ToSplunkDataImport\metadata\default.meta" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="o365ToSplunkDataImport\README\LICENSE" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="o365ToSplunkDataImport\README\README" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="o365ToSplunkDataImport\appserver\static\appIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -117,15 +138,17 @@
   <Target Name="AfterBuild">
     <!-- At this point, we have a directory AppSkeleton in the project directory that
          contains app.conf and inputs.conf.spec. -->
-    <MakeDir Directories="$(AppSkeletonPath);$(AppSkeletonPath)\o365ToSplunkDataImport" />
-    <MakeDir Directories="$(AppSkeletonPath)\o365ToSplunkDataImport\bin;$(AppSkeletonPath)\o365ToSplunkDataImport\default;$(AppSkeletonPath)\o365ToSplunkDataImport\README" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\default\app.conf" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\default" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\README\inputs.conf.spec" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\README" />
-    <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
     <ItemGroup>
       <DLLsToInclude Include="$(OutputPath)\*.dll" />
+      <AppFilesToInclude Include="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\**\*.*" />
     </ItemGroup>
+    <MakeDir Directories="$(AppSkeletonPath);$(AppSkeletonPath)\o365ToSplunkDataImport;$(SPLUNK_HOME)\etc\apps\o365toSplunkDataImport" />
+    <Copy SourceFiles="@(AppFilesToInclude)" DestinationFolder="$(AppSkeletonPath)\o365toSplunkDataImport\%(RecursiveDir)" />
+    <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
     <Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
+    <Copy SourceFiles="@(AppFilesToInclude)" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365toSplunkDataImport\%(RecursiveDir)" />
+    <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365ToSplunkDataImport\bin" />
+    <Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365ToSplunkDataImport\bin" />
     <ZipFolder FolderToCompress="$(AppSkeletonPath)" OutputFileName="$(OutputPath)\o365ToSplunkDataImport.spl" OverwriteExistingFile="true" />
     <Message Importance="high" Text="Finished building .spl file in $(OutputPath)o365ToSplunkDataImport.spl" />
   </Target>

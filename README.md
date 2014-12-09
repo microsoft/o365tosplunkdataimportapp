@@ -11,7 +11,7 @@ Note: Tested with Splunk Enterprise 6.0, 6.1 and 6.2
 
 ## Dependencies
 
-* [Splunk SDK for .Net](http://www.nuget.org/packages/SplunkSDK/)
+* [Splunk Modular Input SDK for .Net](https://www.nuget.org/packages/Splunk.ModularInputs/)
 * [Office 365 reporting web service client library](http://www.nuget.org/packages/Microsoft.Office365.ReportingWebServiceClient/)
 
 Note: Office 365 reporting web service client library is also an open source project: [https://github.com/Microsoft/o365rwsclient](https://github.com/Microsoft/o365rwsclient)
