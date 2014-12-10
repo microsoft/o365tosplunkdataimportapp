@@ -5,28 +5,22 @@ namespace Microsoft.Splunk.O365Reporting
 {
     public class SplunkReportVisitor : IReportVisitor
     {
-        private string streamName;
+        private readonly string streamName;
+        private readonly EventWriter writer;
 
-        public SplunkReportVisitor(string stream)
+        public SplunkReportVisitor(string stream, EventWriter writer)
         {
             this.streamName = stream;
+            this.writer = writer;
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="report"></param>
-        public override void VisitReport(ReportObject report)
+        public override async void VisitReport(ReportObject report)
         {
-            using (EventStreamWriter writer = new EventStreamWriter())
-            {
-                writer.Write(new EventElement
-                {
-                    Time = report.Date,
-                    Source = this.streamName,
-                    Data = report.ConvertToXml()
-                });
-            }
+            await writer.QueueEventForWriting(new Event{Time = report.Date, Source=this.streamName,Data=report.ConvertToXml()});
         }
 
         /// <summary>
@@ -34,19 +28,11 @@ namespace Microsoft.Splunk.O365Reporting
         /// </summary>
         public override void VisitBatchReport()
         {
-            SystemLogger.Write(string.Format("VisitBatchReport: {0}", this.reportObjectList.Count));
+            writer.LogAsync(Severity.Info, string.Format("VisitBatchReport: {0}", this.reportObjectList.Count)).Wait();
 
-            using (EventStreamWriter writer = new EventStreamWriter())
+            foreach (ReportObject report in reportObjectList)
             {
-                foreach (ReportObject report in reportObjectList)
-                {
-                    writer.Write(new EventElement
-                    {
-                        Time = report.Date,
-                        Source = this.streamName,
-                        Data = report.ConvertToXml()
-                    });
-                }
+                writer.QueueEventForWriting(new Event{Time=report.Date, Source=this.streamName, Data=report.ConvertToXml()}).Wait();
             }
         }
     }
