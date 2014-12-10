@@ -151,8 +151,8 @@
     <Message Importance="high" Text="Finished building .spl file in $(OutputPath)o365ToSplunkDataImport.spl" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>REM Uncomment the line below to copy to your local Splunk apps folder
-REM xcopy "$(TargetDir)app\*.*" "$(SPLUNK_HOME)\etc\apps" /F /R /Y /I /E
+    <PostBuildEvent>xcopy "$(ProjectDir)$(ProjectName)\*.*" "$(SPLUNK_HOME)\etc\apps\$(ProjectName)" /F /R /Y /I /E
+xcopy "$(TargetDir)\*.*" "$(SPLUNK_HOME)\etc\apps\$(ProjectName)\bin" /F /R /Y /I 
 </PostBuildEvent>
   </PropertyGroup>
 </Project>
