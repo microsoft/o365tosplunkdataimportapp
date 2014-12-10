@@ -75,12 +75,13 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;deploy</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <AppSkeletonPath>$(OutputPath)\app\</AppSkeletonPath>
+    <AppSkeletonPath>$(OutputPath)app\</AppSkeletonPath>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -142,14 +143,16 @@
       <DLLsToInclude Include="$(OutputPath)\*.dll" />
       <AppFilesToInclude Include="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\**\*.*" />
     </ItemGroup>
-    <MakeDir Directories="$(AppSkeletonPath);$(AppSkeletonPath)\o365ToSplunkDataImport;$(SPLUNK_HOME)\etc\apps\o365toSplunkDataImport" />
+    <MakeDir Directories="$(AppSkeletonPath);$(AppSkeletonPath)\o365ToSplunkDataImport" />
     <Copy SourceFiles="@(AppFilesToInclude)" DestinationFolder="$(AppSkeletonPath)\o365toSplunkDataImport\%(RecursiveDir)" />
     <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
     <Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />
-    <Copy SourceFiles="@(AppFilesToInclude)" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365toSplunkDataImport\%(RecursiveDir)" />
-    <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365ToSplunkDataImport\bin" />
-    <Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365ToSplunkDataImport\bin" />
     <ZipFolder FolderToCompress="$(AppSkeletonPath)" OutputFileName="$(OutputPath)\o365ToSplunkDataImport.spl" OverwriteExistingFile="true" />
     <Message Importance="high" Text="Finished building .spl file in $(OutputPath)o365ToSplunkDataImport.spl" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>REM Uncomment the line below to copy to your local Splunk apps folder
+REM xcopy "$(TargetDir)app\*.*" "$(SPLUNK_HOME)\etc\apps" /F /R /Y /I /E
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>
