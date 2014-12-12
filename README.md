@@ -23,11 +23,9 @@ Note: Office 365 reporting web service client library is also an open source pro
 
 ## Building and deploying at dev box
 
-For simplicity and debugging reasons we decided to leverage Visual Studio post-build event to copy the required files directly to the Splunk server installation path, which is currently assumed to be "C:\Program Files\Splunk\".
+The project file has build events that pushes the projects file to a %SPLUNK_HOME% location, which you will need to create in your system environment variables
 
-![PostBuildEvent](/doc/PostBuildEventCommandLine.png?raw=true)
-
-So we assume you are building the project on the machine that has Splunk Enterprise installed. If not you should modify the post-build event.
+![PostBuildEvent](/doc/AddSplunkHomeVariable.png?raw=true)
 
 ## Feedback
 

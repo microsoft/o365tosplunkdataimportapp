@@ -1,7 +1,7 @@
 ﻿using Microsoft.Office365.ReportingWebServiceClient;
 using Splunk.ModularInputs;
 
-namespace Microsoft.Splunk.O365Reporting
+namespace o365ToSplunkDataImport
 {
     public class SplunkTraceLogger : ITraceLogger
     {
@@ -11,6 +11,7 @@ namespace Microsoft.Splunk.O365Reporting
         {
             this.writer = eventWriter;
         }
+
         public void LogInformation(string message)
         {
             writer.LogAsync(Severity.Info, message).Wait();
@@ -18,7 +19,22 @@ namespace Microsoft.Splunk.O365Reporting
 
         public void LogError(string message)
         {
-            writer.LogAsync(Severity.Info, message).Wait();
+            writer.LogAsync(Severity.Error, message).Wait();
+        }
+
+        public void LogDebug(string message)
+        {
+            writer.LogAsync(Severity.Debug, message).Wait();
+        }
+
+        public void LogFatal(string message)
+        {
+            writer.LogAsync(Severity.Fatal, message).Wait();
+        }
+
+        public void LogWarning(string message)
+        {
+            writer.LogAsync(Severity.Warning, message).Wait();
         }
     }
 }

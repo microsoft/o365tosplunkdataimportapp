@@ -1,7 +1,7 @@
 ﻿using Microsoft.Office365.ReportingWebServiceClient;
 using Splunk.ModularInputs;
 
-namespace Microsoft.Splunk.O365Reporting
+namespace o365ToSplunkDataImport
 {
     public class SplunkReportVisitor : IReportVisitor
     {
