@@ -96,9 +96,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Office365.ReportingWebServiceClient, Version=1.0.2.42457, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Office365.ReportingWebServiceClient, Version=1.0.3.35066, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Office365.ReportingWebServiceClient.1.0.2.0\lib\Microsoft.Office365.ReportingWebServiceClient.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Office365.ReportingWebServiceClient.1.0.3.0\lib\Microsoft.Office365.ReportingWebServiceClient.dll</HintPath>
     </Reference>
     <Reference Include="Splunk.Client, Version=2.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -152,15 +152,11 @@
       <AppFilesToInclude Include="$(MSBuildProjectDirectory)\o365ToSplunkDataImport\**\*.*" />
     </ItemGroup>
     <MakeDir Directories="$(SPLUNK_HOME)\etc\apps\o365toSplunkDataImport" />
-
     <!--$(AppSkeletonPath);$(AppSkeletonPath)\o365ToSplunkDataImport;-->
-
     <!--<Copy SourceFiles="@(AppFilesToInclude)" DestinationFolder="$(AppSkeletonPath)\o365toSplunkDataImport\%(RecursiveDir)" />-->
     <Copy SourceFiles="@(AppFilesToInclude)" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365toSplunkDataImport\%(RecursiveDir)" />
-    
     <!--<Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />-->
     <Copy SourceFiles="$(OutputPath)\o365ToSplunkDataImport.exe" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365ToSplunkDataImport\bin" />
-    
     <!--<Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(AppSkeletonPath)\o365ToSplunkDataImport\bin" />-->
     <Copy SourceFiles="@(DLLsToInclude)" DestinationFolder="$(SPLUNK_HOME)\etc\apps\o365ToSplunkDataImport\bin" />
   </Target>

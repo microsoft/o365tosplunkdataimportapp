@@ -21,6 +21,12 @@
           <view name="list" />
           <key name="exampleText">Note: Your Office 365 subscription might not include all of the reports listed here. To see which reports are part of your subscription, check the Reports section of Office 365</key>
           <options>
+            <opt value="ClientSoftwareBrowserDetail" label="Client Software Browser Detail" />
+            <opt value="ClientSoftwareOSDetail" label="Client Software OS Detail" />
+            <opt value="ConnectionbyClientTypeDetailDaily" label="Connection by Client Type - Daily" />
+            <opt value="ConnectionbyClientTypeDetailWeekly" label="Connection by Client Type - Weekly" />
+            <opt value="ConnectionbyClientTypeDetailMonthly" label="Connection by Client Type - Monthly" />
+            <opt value="ConnectionbyClientTypeDetailYearly" label="Connection by Client Type - Yearly" />
             <opt value="GroupActivityDaily" label="Group Activity - Daily" />
             <opt value="GroupActivityWeekly" label="Group Activity - Weekly" />
             <opt value="GroupActivityMonthly" label="Group Activity - Monthly" />
