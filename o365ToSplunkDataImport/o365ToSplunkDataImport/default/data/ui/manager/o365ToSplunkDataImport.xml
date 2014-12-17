@@ -21,19 +21,33 @@
           <view name="list" />
           <key name="exampleText">Note: Your Office 365 subscription might not include all of the reports listed here. To see which reports are part of your subscription, check the Reports section of Office 365</key>
           <options>
-            <opt value="MailboxActivityDaily" label="Mailbox Activity - Daily" />
-            <opt value="MailboxActivityWeekly" label="Mailbox Activity - Weekly" />
-            <opt value="MailboxActivityMonthly" label="Mailbox Activity - Monthly" />
-            <opt value="MailboxActivityYearly" label="Mailbox Activity - Yearly" />
             <opt value="GroupActivityDaily" label="Group Activity - Daily" />
             <opt value="GroupActivityWeekly" label="Group Activity - Weekly" />
             <opt value="GroupActivityMonthly" label="Group Activity - Monthly" />
             <opt value="GroupActivityYearly" label="Group Activity - Yearly" />
+            <opt value="MailboxActivityDaily" label="Mailbox Activity - Daily" />
+            <opt value="MailboxActivityWeekly" label="Mailbox Activity - Weekly" />
+            <opt value="MailboxActivityMonthly" label="Mailbox Activity - Monthly" />
+            <opt value="MailboxActivityYearly" label="Mailbox Activity - Yearly" />
             <opt value="MailboxUsage" label="Mailbox Usage" />
             <opt value="MailboxUsageDetail" label="Mailbox Usage Detail" />
+            <opt value="SPOOneDriveForBusinessFileActivity" label="OneDrive for Business user activity logs" />
+            <opt value="SPOSkyDriveProDeployedWeekly" label="OneDrive for Business sites deployed - Weekly" />
+            <opt value="SPOSkyDriveProDeployedMonthly" label="OneDrive for Business sites deployed - Monthly" />
+            <opt value="SPOSkyDriveProStorageMonthly" label="OneDrive for Business sites storage - Monthly" />
+            <opt value="SPOSkyDriveProStorageWeekly" label="OneDrive for Business sites storage - Weekly" />
+            <opt value="SPOActiveUserDaily" label="SharePoint Online Active User - Daily" />
+            <opt value="SPOActiveUserWeekly" label="SharePoint Online Active User - Weekly" />
+            <opt value="SPOActiveUserMonthly" label="SharePoint Online Active User - Monthly" />
+            <opt value="SPOTeamSiteDeployedWeekly" label="SharePoint Online team sites deployed - Weekly" />
+            <opt value="SPOTeamSiteDeployedMonthly" label="SharePoint Online team sites deployed - Monthly" />
+            <opt value="SPOTeamSiteStorageWeekly" label="SharePoint Online team sites storage - Weekly" />
+            <opt value="SPOTeamSiteStorageMonthly" label="SharePoint Online team sites storage - Monthly" />
+            <opt value="SPOTenantStorageMetricDaily" label="SharePoint Online tenant storage metrics - Daily" />
+            <opt value="SPOTenantStorageMetricWeekly" label="SharePoint Online tenant storage metrics - Weekly" />
+            <opt value="SPOTenantStorageMetricMonthly" label="SharePoint Online tenant storage metrics - Monthly" />
             <opt value="StaleMailbox" label="Stale Mailbox" />
             <opt value="StaleMailboxDetail" label="Stale Mailbox Detail" />
-            <opt value="SPOOneDriveForBusinessFileActivity" label="OneDrive for Business user activity logs" />
           </options>
         </element>
         <element name="email" type="textfield" label="Office 365 email address">

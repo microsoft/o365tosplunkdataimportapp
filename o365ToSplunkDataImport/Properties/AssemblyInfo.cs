@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("This Splunk application lets you import Office 365 Admin Reports data into Splunk easily")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft Corporation")]
-[assembly: AssemblyProduct("Office 365 Admin Reporting")]
+[assembly: AssemblyProduct("Office 365 to Splunk data import app")]
 [assembly: AssemblyCopyright("Copyright © 2014 Microsoft Corporation")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

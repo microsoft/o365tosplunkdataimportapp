@@ -2,6 +2,7 @@
 using Splunk.ModularInputs;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace o365ToSplunkDataImport
@@ -27,14 +28,17 @@ namespace o365ToSplunkDataImport
             else
                 return null;
         }
+
         #endregion Private Methods
 
         public static int Main(string[] args)
         {
-#if DEBUG
-            return Run<Program>(args, DebuggerAttachPoints.ValidateArguments);
+#if DEBUGNOATTACH
+            return Run<Program>(args, DebuggerAttachPoints.None);
+#elif DEBUG
+            return Run<Program>(args, DebuggerAttachPoints.StreamEvents); //DebuggerAttachPoints.ValidateArguments | 
 #else
-            return Run<Program>(args); 
+            return Run<Program>(args);
 #endif
         }
 
@@ -101,13 +105,16 @@ namespace o365ToSplunkDataImport
             try
             {
                 #region Get param values
-                string streamName = validation.Name;
+
+                //Adding the validate value at the end to differentiate it from the real stream later created while streaming data
+                string streamName = validation.Name + "validate";
                 string reportName = validation.Parameters[ConstantReportName].ToString();
                 string emailAddress = validation.Parameters[ConstantEmailAddress].ToString();
                 string password = validation.Parameters[ConstantPassword].ToString();
                 DateTime startDateTime = validation.Parameters[ConstantStartDate].ToString().TryParseDateTime(DateTime.MinValue);
-                DateTime endDateTime = validation.Parameters[ConstantEndDate].ToString().TryParseDateTime(DateTime.MinValue);
-                #endregion
+                DateTime endDateTime = validation.Parameters[ConstantEndDate].ToString().TryParseDateTime(DateTime.MaxValue);
+
+                #endregion Get param values
 
                 if (startDateTime > endDateTime)
                 {
@@ -124,8 +131,19 @@ namespace o365ToSplunkDataImport
                 context.SetLogger(new DefaultLogger());
 
                 ReportingStream stream = new ReportingStream(context, reportName, streamName);
-                errorMessage = "";
-                return stream.ValidateAccessToReport();
+                
+                bool res = stream.ValidateAccessToReport();
+                if(res)
+                {
+                    errorMessage = "";
+                    stream.ClearProgress();
+                }
+                else
+                {
+                    errorMessage = string.Format("An error occured while validating your crendentials against report: {0}", reportName);
+                }
+                return res;
+                    
             }
             catch (Exception e)
             {
@@ -149,7 +167,7 @@ namespace o365ToSplunkDataImport
             string end = await GetConfigurationValue(inputDefinition, ConstantEndDate, eventWriter);
             DateTime endDateTime = end.TryParseDateTime(DateTime.MinValue);
 
-            #endregion Get stanza values
+            #endregion Get param values
 
             ReportingContext context = new ReportingContext();
             context.UserName = emailAddress;
@@ -170,7 +188,7 @@ namespace o365ToSplunkDataImport
         }
     }
 
-    static class Extensions
+    internal static class Extensions
     {
         public static Guid TryParseGuid(this string value, Guid defaultValue)
         {
